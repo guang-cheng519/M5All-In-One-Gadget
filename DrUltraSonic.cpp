@@ -1,5 +1,4 @@
 #include "DrUltraSonic.h"
-#include <M5Stack.h>
 #include <Arduino.h>
 
 DrUltraSonic::DrUltraSonic(int echo_pin, int trig_pin)

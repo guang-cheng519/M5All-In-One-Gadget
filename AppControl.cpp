@@ -175,10 +175,57 @@ void AppControl::displayMusicPlay()
 
 void AppControl::displayMeasureInit()
 {
+    mlcd.clearDisplay();
+    mlcd.fillBackgroundWhite();
+    mlcd.displayJpgImageCoordinate(MEASURE_NOTICE_IMG_PATH, MEASURE_NOTICE_X_CRD, MEASURE_NOTICE_Y_CRD);
+    mlcd.displayJpgImageCoordinate(MEASURE_CM_IMG_PATH, MEASURE_CM_X_CRD, MEASURE_CM_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, MEASURE_BACK_X_CRD, MEASURE_BACK_Y_CRD);
+    displayMeasureDistance();
 }
 
 void AppControl::displayMeasureDistance()
 {
+
+/*String distance =String(mmdist.getDistance());
+int len = distance.length();
+for (int i  = 0; i < len; i++) {
+    distance_digit[i]=distance.charAt(i);
+    delay(1);
+  }
+*/
+
+    char distance_digit[4];
+    int n = 0;
+
+    int distance = (int)(mmdist.getDistance() * 10);
+
+    while (distance != 0)
+    {
+        distance_digit[n] = distance % 10;
+        distance /= 10;
+        n++;
+    }
+    if (distance_digit[3] > 0)
+    {
+        mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[3])), MEASURE_DIGIT3_X_CRD, MEASURE_DIGIT3_Y_CRD);
+        mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[2])), MEASURE_DIGIT2_X_CRD, MEASURE_DIGIT2_Y_CRD);
+    }
+    else
+    {
+        mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, MEASURE_DIGIT3_X_CRD, MEASURE_DIGIT3_Y_CRD);
+        if (distance_digit[2] > 0)
+        {
+            mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[2])), MEASURE_DIGIT2_X_CRD, MEASURE_DIGIT2_Y_CRD);
+        }
+        else
+        {
+            mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, MEASURE_DIGIT2_X_CRD, MEASURE_DIGIT2_Y_CRD);
+        }
+    }
+
+    mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[1])), MEASURE_DIGIT1_X_CRD, MEASURE_DIGIT1_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BLUEDOT_IMG_PATH, MEASURE_DOT_X_CRD, MEASURE_DOT_Y_CRD);
+    mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[0])), MEASURE_DECIMAL_X_CRD, MEASURE_DECIMAL_Y_CRD);
 }
 
 void AppControl::displayDateInit()
@@ -186,16 +233,14 @@ void AppControl::displayDateInit()
     mlcd.clearDisplay();
     mlcd.fillBackgroundWhite();
     mlcd.displayJpgImageCoordinate(DATE_NOTICE_IMG_PATH, DATE_NOTICE_X_CRD, DATE_NOTICE_Y_CRD);
-    mlcd.displayDateText(mdtime.readDate(), DATE_YYYYMMDD_X_CRD, DATE_YYYYMMDD_Y_CRD);
-    mlcd.displayDateText(mdtime.readTime(), DATE_HHmmSS_X_CRD, DATE_HHmmSS_Y_CRD);
     mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, DATE_BACK_X_CRD, DATE_BACK_Y_CRD);
+    displayDateUpdate();
 }
 
 void AppControl::displayDateUpdate()
 {
- mlcd.displayDateText(mdtime.readDate(), DATE_YYYYMMDD_X_CRD, DATE_YYYYMMDD_Y_CRD);
+    mlcd.displayDateText(mdtime.readDate(), DATE_YYYYMMDD_X_CRD, DATE_YYYYMMDD_Y_CRD);
     mlcd.displayDateText(mdtime.readTime(), DATE_HHmmSS_X_CRD, DATE_HHmmSS_Y_CRD);
-
 }
 
 void AppControl::controlApplication()
@@ -381,12 +426,23 @@ void AppControl::controlApplication()
             switch (getAction())
             {
             case ENTRY:
+                displayMeasureInit();
+                setStateMachine(MEASURE, DO);
                 break;
 
             case DO:
+                displayMeasureDistance();
+                delay(250);
+                if (m_flag_btnB_is_pressed)
+                {
+                    setStateMachine(MEASURE, EXIT);
+                    setBtnAllFlgFalse();
+                }
+
                 break;
 
             case EXIT:
+                setStateMachine(MENU, ENTRY);
                 break;
 
             default:
