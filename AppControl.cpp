@@ -147,10 +147,99 @@ void AppControl::focusChangeImg(FocusState current_state, FocusState next_state)
 
 void AppControl::displayWBGTInit()
 {
+    mlcd.clearDisplay();
+    mlcd.fillBackgroundWhite();
+    mlcd.displayJpgImageCoordinate(WBGT_TEMPERATURE_IMG_PATH, WBGT_TEMPERATURE_X_CRD, WBGT_TEMPERATURE_Y_CRD);
+    mlcd.displayJpgImageCoordinate(WBGT_DEGREE_IMG_PATH, WBGT_DEGREE_X_CRD, WBGT_DEGREE_Y_CRD);
+    mlcd.displayJpgImageCoordinate(WBGT_HUMIDITY_IMG_PATH, WBGT_HUMIDITY_X_CRD, WBGT_HUMIDITY_Y_CRD);
+    mlcd.displayJpgImageCoordinate(WBGT_PERCENT_IMG_PATH, WBGT_PERCENT_X_CRD, WBGT_PERCENT_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, WBGT_BACK_X_CRD, WBGT_BACK_Y_CRD);
+    displayTempHumiIndex();
 }
 
 void AppControl::displayTempHumiIndex()
 {
+    WbgtIndex index;
+    double temperature;
+    double humidity;
+    mwbgt.init();
+    mwbgt.getWBGT(&temperature, &humidity, &index);
+
+    char temperature_digit[3];
+    char humidity_digit[3];
+    int temperature_integer=(int)(temperature * 10);//double型で来た値を＊10して小数点をなくしてint型に入れる
+    int humidity_integer=(int)(humidity * 10);
+    int i = 0;
+    while (temperature_integer != 0 && humidity_integer != 0)// temperature_integerとhumidity_integerの値が０になるまで繰り返す
+    {
+        if (temperature_integer == 0)//temperature_integer(気温)が一桁の場合
+        {
+            humidity_digit[i] = humidity_integer % 10;
+            humidity_integer /= 10;
+            i++;
+        }
+        else if (humidity_integer == 0)//humidity_integer(湿度)が一桁の場合
+        {
+            temperature_digit[i] = temperature_integer % 10;
+            temperature_integer /= 10;
+            i++;
+        }
+        else    //気温と湿度の桁が一緒の時
+        {
+            temperature_digit[i] = temperature_integer % 10;
+            temperature_integer /= 10;
+            humidity_digit[i] = humidity_integer % 10;
+            humidity_integer /= 10;
+            i++;
+        }
+    }
+    if (temperature_digit[2] > 0)//気温が2桁ある時の表示
+    {
+        mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[2])), WBGT_T2DIGIT_X_CRD, WBGT_T2DIGIT_Y_CRD);
+        mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[1])), WBGT_T1DIGIT_X_CRD, WBGT_T1DIGIT_Y_CRD);
+    }
+    else//気温が1桁の時2桁目は表示しない
+    {
+        mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, WBGT_T2DIGIT_X_CRD, WBGT_T2DIGIT_Y_CRD);
+        mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[1])), WBGT_T1DIGIT_X_CRD, WBGT_T1DIGIT_Y_CRD);
+    }
+    mlcd.displayJpgImageCoordinate(COMMON_BLUEDOT_IMG_PATH, WBGT_TDOT_X_CRD, WBGT_TDOT_Y_CRD);
+    mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[0])), WBGT_T1DECIMAL_X_CRD, WBGT_T1DECIMAL_Y_CRD);
+ if (humidity_digit[2] > 0)//湿度が2桁ある時の表示
+    {
+        mlcd.displayJpgImageCoordinate(*(g_str_blue + (humidity_digit[2])), WBGT_H2DIGIT_X_CRD, WBGT_H2DIGIT_Y_CRD);
+        mlcd.displayJpgImageCoordinate(*(g_str_blue + (humidity_digit[1])), WBGT_H1DIGIT_X_CRD, WBGT_H1DIGIT_Y_CRD);
+    }
+    else//湿度が1桁の時2桁目は表示しない
+    {
+        mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, WBGT_H2DIGIT_X_CRD, WBGT_H2DIGIT_Y_CRD);
+        mlcd.displayJpgImageCoordinate(*(g_str_blue + (humidity_digit[1])), WBGT_H1DIGIT_X_CRD, WBGT_H1DIGIT_Y_CRD);
+    }
+    mlcd.displayJpgImageCoordinate(COMMON_BLUEDOT_IMG_PATH, WBGT_HDOT_X_CRD, WBGT_HDOT_Y_CRD);
+    mlcd.displayJpgImageCoordinate(*(g_str_blue + (humidity_digit[0])), WBGT_H1DECIMAL_X_CRD, WBGT_H1DECIMAL_Y_CRD);
+
+switch (index)
+{
+case SAFE:
+     mlcd.displayJpgImageCoordinate(WBGT_SAFE_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
+    break;
+    case ATTENTION:
+     mlcd.displayJpgImageCoordinate(WBGT_ATTENTION_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
+    break;
+    case ALERT:
+     mlcd.displayJpgImageCoordinate(WBGT_ALERT_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
+    break;
+    case HIGH_ALERT:
+     mlcd.displayJpgImageCoordinate(WBGT_HIGH_ALERT_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
+    break;
+    case DANGER:
+     mlcd.displayJpgImageCoordinate(WBGT_DANGER_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
+    break;
+default:
+    break;
+}
+
+
 }
 
 void AppControl::displayMusicInit()
@@ -186,48 +275,41 @@ void AppControl::displayMeasureInit()
 void AppControl::displayMeasureDistance()
 {
 
-/*String distance =String(mmdist.getDistance());
-int len = distance.length();
-for (int i  = 0; i < len; i++) {
-    distance_digit[i]=distance.charAt(i);
-    delay(1);
-  }
-*/
-
     char distance_digit[4];
     int n = 0;
 
-    int distance = (int)(mmdist.getDistance() * 10);
-
-    while (distance != 0)
-    {
-        distance_digit[n] = distance % 10;
-        distance /= 10;
-        n++;
-    }
-    if (distance_digit[3] > 0)
-    {
-        mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[3])), MEASURE_DIGIT3_X_CRD, MEASURE_DIGIT3_Y_CRD);
-        mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[2])), MEASURE_DIGIT2_X_CRD, MEASURE_DIGIT2_Y_CRD);
-    }
-    else
-    {
-        mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, MEASURE_DIGIT3_X_CRD, MEASURE_DIGIT3_Y_CRD);
-        if (distance_digit[2] > 0)
+    int distance = (int)(mmdist.getDistance() * 10); // double型で来た値を＊10して小数点をなくしてint型に入れる
+    if (distance > 20 || distance <= 4500)
+    {                         // 2cm～450cmの間だけ表示するそれ以外は更新しない
+        while (distance != 0) // distanceの値が０になるまで繰り返す
         {
+            distance_digit[n] = distance % 10; // 10で割って余った値をchar配列に入れる
+            distance /= 10;                    // 　値を1/10にしてdistanceに代入する
+            n++;
+        }
+        if (distance_digit[3] > 0) // 3桁目が1以上なら2桁目もそのまま表示する
+        {
+            mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[3])), MEASURE_DIGIT3_X_CRD, MEASURE_DIGIT3_Y_CRD);
             mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[2])), MEASURE_DIGIT2_X_CRD, MEASURE_DIGIT2_Y_CRD);
         }
-        else
+        else // 3桁目が０の時3桁目は表示しない
         {
-            mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, MEASURE_DIGIT2_X_CRD, MEASURE_DIGIT2_Y_CRD);
+            mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, MEASURE_DIGIT3_X_CRD, MEASURE_DIGIT3_Y_CRD);
+            if (distance_digit[2] > 0) // 3桁目が0で表示してないとき2桁目が1以上なら2桁目表示
+            {
+                mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[2])), MEASURE_DIGIT2_X_CRD, MEASURE_DIGIT2_Y_CRD);
+            }
+            else // 2桁目が0なら2桁目表示しない
+            {
+                mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, MEASURE_DIGIT2_X_CRD, MEASURE_DIGIT2_Y_CRD);
+            }
         }
+
+        mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[1])), MEASURE_DIGIT1_X_CRD, MEASURE_DIGIT1_Y_CRD);
+        mlcd.displayJpgImageCoordinate(COMMON_BLUEDOT_IMG_PATH, MEASURE_DOT_X_CRD, MEASURE_DOT_Y_CRD);
+        mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[0])), MEASURE_DECIMAL_X_CRD, MEASURE_DECIMAL_Y_CRD);
     }
-
-    mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[1])), MEASURE_DIGIT1_X_CRD, MEASURE_DIGIT1_Y_CRD);
-    mlcd.displayJpgImageCoordinate(COMMON_BLUEDOT_IMG_PATH, MEASURE_DOT_X_CRD, MEASURE_DOT_Y_CRD);
-    mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[0])), MEASURE_DECIMAL_X_CRD, MEASURE_DECIMAL_Y_CRD);
 }
-
 void AppControl::displayDateInit()
 {
     mlcd.clearDisplay();
@@ -369,13 +451,21 @@ void AppControl::controlApplication()
             switch (getAction())
             {
             case ENTRY:
-
+                displayWBGTInit();
+                setStateMachine(WBGT, DO);
                 break;
-
             case DO:
+                displayTempHumiIndex();
+                delay(100);
+                if (m_flag_btnB_is_pressed)
+                {
+                    setStateMachine(WBGT, EXIT);
+                    setBtnAllFlgFalse();
+                }
                 break;
 
             case EXIT:
+                setStateMachine(MENU, ENTRY);
                 break;
 
             default:

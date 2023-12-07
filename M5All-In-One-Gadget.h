@@ -98,9 +98,52 @@
 #define MENU_BUTTON_DOWN_Y_CRD 200
 
 // WBGT jpg image coordinate
+#define WBGT_TEMPERATURE_X_CRD 0
+#define WBGT_TEMPERATURE_Y_CRD 0
+#define WBGT_HUMIDITY_X_CRD 0
+#define WBGT_HUMIDITY_Y_CRD 50
+#define WBGT_T2DIGIT_X_CRD 120
+#define WBGT_T2DIGIT_Y_CRD 0
+#define WBGT_T1DIGIT_X_CRD 153
+#define WBGT_T1DIGIT_Y_CRD 0
+#define WBGT_TDOT_X_CRD 186
+#define WBGT_TDOT_Y_CRD 0
+#define WBGT_T1DECIMAL_X_CRD 220
+#define WBGT_T1DECIMAL_Y_CRD 0
+#define WBGT_DEGREE_X_CRD 253
+#define WBGT_DEGREE_Y_CRD 0
+#define WBGT_H2DIGIT_X_CRD 120
+#define WBGT_H2DIGIT_Y_CRD 50
+#define WBGT_H1DIGIT_X_CRD 156
+#define WBGT_H1DIGIT_Y_CRD 50
+#define WBGT_HDOT_X_CRD 186
+#define WBGT_HDOT_Y_CRD 50
+#define WBGT_H1DECIMAL_X_CRD 220
+#define WBGT_H1DECIMAL_Y_CRD 50
+#define WBGT_PERCENT_X_CRD 253
+#define WBGT_PERCENT_Y_CRD 50
+#define WBGT_NOTICE_X_CRD 0
+#define WBGT_NOTICE_Y_CRD 100
+#define WBGT_BACK_X_CRD 120
+#define WBGT_BACK_Y_CRD 200
+
 
 
 // Music jpg image coordinate
+#define MUSIC_NOTICE_X_CRD 0
+#define MUSIC_NOTICE_Y_CRD 0
+#define MUSIC_TITLE_X_CRD 0
+#define MUSIC_TITLE_Y_CRD 120
+#define MUSIC_PLAY_X_CRD 0
+#define MUSIC_PLAY_Y_CRD 200
+#define MUSIC_BACK_X_CRD 120
+#define MUSIC_BACK_Y_CRD 200
+#define MUSIC_NEXT_X_CRD 240
+#define MUSIC_NEXT_Y_CRD 200
+#define MUSIC_STOP_X_CRD 0
+#define MUSIC_STOP_Y_CRD 200
+
+
 
 // Measure jpg image coordinate
 #define MEASURE_NOTICE_X_CRD 0
@@ -162,3 +205,4 @@ typedef enum {
     HIGH_ALERT,
     DANGER
 } WbgtIndex;
+
