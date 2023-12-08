@@ -258,6 +258,7 @@ void AppControl::displayMusicStop()
 
 void AppControl::displayMusicTitle()
 {
+    mlcd.displayText("                                            ", MUSIC_TITLE_X_CRD, MUSIC_TITLE_Y_CRD);
     mlcd.displayText(mmplay.getTitle(), MUSIC_TITLE_X_CRD, MUSIC_TITLE_Y_CRD);
 }
 
@@ -340,9 +341,9 @@ void AppControl::displayDateUpdate()
 
 void AppControl::controlApplication()
 {
-
-    mmplay.init();
-
+ 
+ mmplay.init();
+           
     while (1)
     {
 
@@ -359,6 +360,7 @@ void AppControl::controlApplication()
                 */
                 displayTitleInit();
                 setStateMachine(TITLE, DO);
+                
                 break;
 
             case DO:
@@ -386,6 +388,7 @@ void AppControl::controlApplication()
             case ENTRY:
                 setFocusState(MENU_WBGT);
                 displayMenuInit();
+                
                 setStateMachine(MENU, DO);
 
                 break;
@@ -465,6 +468,7 @@ void AppControl::controlApplication()
             {
             case ENTRY:
                 displayWBGTInit();
+                
                 setStateMachine(WBGT, DO);
                 break;
             case DO:
@@ -491,7 +495,7 @@ void AppControl::controlApplication()
             switch (getAction())
             {
             case ENTRY:
-            mmplay.init();
+           
                 displayMusicInit();
                 
                
@@ -499,7 +503,6 @@ void AppControl::controlApplication()
                 break;
 
             case DO:
-
                 if (m_flag_btnA_is_pressed)
                 {
                     setStateMachine(MUSIC_STOP, EXIT);
@@ -542,12 +545,12 @@ void AppControl::controlApplication()
             case ENTRY:
                 displayMusicPlay();
                 mmplay.prepareMP3();
+
                 setStateMachine(MUSIC_PLAY, DO);
                 break;
 
             case DO:
-                mmplay.playMP3();
-                if (m_flag_btnA_is_pressed || !mmplay.isRunningMP3())
+                if (m_flag_btnA_is_pressed || !mmplay.playMP3())
                 {
                     setStateMachine(MUSIC_PLAY, EXIT);
                     setBtnAllFlgFalse();
@@ -603,11 +606,11 @@ void AppControl::controlApplication()
             {
             case ENTRY:
                 displayDateInit();
+    
                 setStateMachine(DATE, DO);
                 break;
 
             case DO:
-
                 displayDateUpdate();
                 delay(100);
                 if (m_flag_btnB_is_pressed)
@@ -629,4 +632,6 @@ void AppControl::controlApplication()
             break;
         }
     }
+    
+
 }
