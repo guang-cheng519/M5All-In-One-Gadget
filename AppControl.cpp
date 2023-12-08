@@ -167,24 +167,24 @@ void AppControl::displayTempHumiIndex()
 
     char temperature_digit[3];
     char humidity_digit[3];
-    int temperature_integer=(int)(temperature * 10);//double型で来た値を＊10して小数点をなくしてint型に入れる
-    int humidity_integer=(int)(humidity * 10);
+    int temperature_integer = (int)(temperature * 10); // double型で来た値を＊10して小数点をなくしてint型に入れる
+    int humidity_integer = (int)(humidity * 10);
     int i = 0;
-    while (temperature_integer != 0 && humidity_integer != 0)// temperature_integerとhumidity_integerの値が０になるまで繰り返す
+    while (temperature_integer != 0 && humidity_integer != 0) // temperature_integerとhumidity_integerの値が０になるまで繰り返す
     {
-        if (temperature_integer == 0)//temperature_integer(気温)が一桁の場合
+        if (temperature_integer == 0) // temperature_integer(気温)が一桁の場合
         {
             humidity_digit[i] = humidity_integer % 10;
             humidity_integer /= 10;
             i++;
         }
-        else if (humidity_integer == 0)//humidity_integer(湿度)が一桁の場合
+        else if (humidity_integer == 0) // humidity_integer(湿度)が一桁の場合
         {
             temperature_digit[i] = temperature_integer % 10;
             temperature_integer /= 10;
             i++;
         }
-        else    //気温と湿度の桁が一緒の時
+        else // 気温と湿度の桁が一緒の時
         {
             temperature_digit[i] = temperature_integer % 10;
             temperature_integer /= 10;
@@ -193,24 +193,24 @@ void AppControl::displayTempHumiIndex()
             i++;
         }
     }
-    if (temperature_digit[2] > 0)//気温が2桁ある時の表示
+    if (temperature_digit[2] > 0) // 気温が2桁ある時の表示
     {
         mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[2])), WBGT_T2DIGIT_X_CRD, WBGT_T2DIGIT_Y_CRD);
         mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[1])), WBGT_T1DIGIT_X_CRD, WBGT_T1DIGIT_Y_CRD);
     }
-    else//気温が1桁の時2桁目は表示しない
+    else // 気温が1桁の時2桁目は表示しない
     {
         mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, WBGT_T2DIGIT_X_CRD, WBGT_T2DIGIT_Y_CRD);
         mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[1])), WBGT_T1DIGIT_X_CRD, WBGT_T1DIGIT_Y_CRD);
     }
     mlcd.displayJpgImageCoordinate(COMMON_BLUEDOT_IMG_PATH, WBGT_TDOT_X_CRD, WBGT_TDOT_Y_CRD);
     mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[0])), WBGT_T1DECIMAL_X_CRD, WBGT_T1DECIMAL_Y_CRD);
- if (humidity_digit[2] > 0)//湿度が2桁ある時の表示
+    if (humidity_digit[2] > 0) // 湿度が2桁ある時の表示
     {
         mlcd.displayJpgImageCoordinate(*(g_str_blue + (humidity_digit[2])), WBGT_H2DIGIT_X_CRD, WBGT_H2DIGIT_Y_CRD);
         mlcd.displayJpgImageCoordinate(*(g_str_blue + (humidity_digit[1])), WBGT_H1DIGIT_X_CRD, WBGT_H1DIGIT_Y_CRD);
     }
-    else//湿度が1桁の時2桁目は表示しない
+    else // 湿度が1桁の時2桁目は表示しない
     {
         mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, WBGT_H2DIGIT_X_CRD, WBGT_H2DIGIT_Y_CRD);
         mlcd.displayJpgImageCoordinate(*(g_str_blue + (humidity_digit[1])), WBGT_H1DIGIT_X_CRD, WBGT_H1DIGIT_Y_CRD);
@@ -218,48 +218,60 @@ void AppControl::displayTempHumiIndex()
     mlcd.displayJpgImageCoordinate(COMMON_BLUEDOT_IMG_PATH, WBGT_HDOT_X_CRD, WBGT_HDOT_Y_CRD);
     mlcd.displayJpgImageCoordinate(*(g_str_blue + (humidity_digit[0])), WBGT_H1DECIMAL_X_CRD, WBGT_H1DECIMAL_Y_CRD);
 
-switch (index)
-{
-case SAFE:
-     mlcd.displayJpgImageCoordinate(WBGT_SAFE_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
-    break;
+    switch (index)
+    {
+    case SAFE:
+        mlcd.displayJpgImageCoordinate(WBGT_SAFE_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
+        break;
     case ATTENTION:
-     mlcd.displayJpgImageCoordinate(WBGT_ATTENTION_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
-    break;
+        mlcd.displayJpgImageCoordinate(WBGT_ATTENTION_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
+        break;
     case ALERT:
-     mlcd.displayJpgImageCoordinate(WBGT_ALERT_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
-    break;
+        mlcd.displayJpgImageCoordinate(WBGT_ALERT_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
+        break;
     case HIGH_ALERT:
-     mlcd.displayJpgImageCoordinate(WBGT_HIGH_ALERT_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
-    break;
+        mlcd.displayJpgImageCoordinate(WBGT_HIGH_ALERT_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
+        break;
     case DANGER:
-     mlcd.displayJpgImageCoordinate(WBGT_DANGER_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
-    break;
-default:
-    break;
-}
-
-
+        mlcd.displayJpgImageCoordinate(WBGT_DANGER_IMG_PATH, WBGT_NOTICE_X_CRD, WBGT_NOTICE_Y_CRD);
+        break;
+    default:
+        break;
+    }
 }
 
 void AppControl::displayMusicInit()
 {
+    mlcd.clearDisplay();
+    mlcd.fillBackgroundWhite();
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, MUSIC_BACK_X_CRD, MUSIC_BACK_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_NEXT_IMG_PATH, MUSIC_NEXT_X_CRD, MUSIC_NEXT_Y_CRD);
+    displayMusicTitle();
+    displayMusicStop();
 }
 
 void AppControl::displayMusicStop()
 {
+    mlcd.displayJpgImageCoordinate(MUSIC_NOWSTOPPING_IMG_PATH, MUSIC_NOTICE_X_CRD, MUSIC_NOTICE_X_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_PLAY_IMG_PATH, MUSIC_PLAY_X_CRD, MUSIC_PLAY_Y_CRD);
 }
 
 void AppControl::displayMusicTitle()
 {
+    mlcd.displayText(mmplay.getTitle(), MUSIC_TITLE_X_CRD, MUSIC_TITLE_Y_CRD);
 }
 
 void AppControl::displayNextMusic()
 {
+    mmplay.selectNextMusic();
 }
 
 void AppControl::displayMusicPlay()
 {
+    mlcd.fillBackgroundWhite();
+    mlcd.displayJpgImageCoordinate(MUSIC_NOWPLAYING_IMG_PATH, MUSIC_NOTICE_X_CRD, MUSIC_NOTICE_X_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_STOP_IMG_PATH, MUSIC_STOP_X_CRD, MUSIC_STOP_Y_CRD);
+    displayMusicTitle();
 }
 
 void AppControl::displayMeasureInit()
@@ -310,6 +322,7 @@ void AppControl::displayMeasureDistance()
         mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[0])), MEASURE_DECIMAL_X_CRD, MEASURE_DECIMAL_Y_CRD);
     }
 }
+
 void AppControl::displayDateInit()
 {
     mlcd.clearDisplay();
@@ -430,7 +443,7 @@ void AppControl::controlApplication()
                     setStateMachine(WBGT, ENTRY);
                     break;
                 case MENU_MUSIC:
-                    setStateMachine(MUSIC_PLAY, ENTRY);
+                    setStateMachine(MUSIC_STOP, ENTRY);
                     break;
                 case MENU_MEASURE:
                     setStateMachine(MEASURE, ENTRY);
@@ -478,12 +491,42 @@ void AppControl::controlApplication()
             switch (getAction())
             {
             case ENTRY:
+            mmplay.init();
+                displayMusicInit();
+                
+               
+                setStateMachine(MUSIC_STOP, DO);
                 break;
 
             case DO:
+
+                if (m_flag_btnA_is_pressed)
+                {
+                    setStateMachine(MUSIC_STOP, EXIT);
+                }
+                else if (m_flag_btnB_is_pressed)
+                {
+                    setStateMachine(MUSIC_STOP, EXIT);
+                }
+                else if (m_flag_btnC_is_pressed)
+                {
+                    displayNextMusic();
+                    displayMusicTitle();
+                    setBtnAllFlgFalse();
+                }
+
                 break;
 
             case EXIT:
+                if (m_flag_btnA_is_pressed)
+                {
+                    setStateMachine(MUSIC_PLAY, ENTRY);
+                }
+                else if (m_flag_btnB_is_pressed)
+                {
+                    setStateMachine(MENU, ENTRY);
+                }
+                setBtnAllFlgFalse();
                 break;
 
             default:
@@ -497,15 +540,28 @@ void AppControl::controlApplication()
             switch (getAction())
             {
             case ENTRY:
+                displayMusicPlay();
+                mmplay.prepareMP3();
+                setStateMachine(MUSIC_PLAY, DO);
                 break;
 
             case DO:
+                mmplay.playMP3();
+                if (m_flag_btnA_is_pressed || !mmplay.isRunningMP3())
+                {
+                    setStateMachine(MUSIC_PLAY, EXIT);
+                    setBtnAllFlgFalse();
+                }
+
                 break;
 
             case EXIT:
+             mmplay.stopMP3();
+                setStateMachine(MUSIC_STOP, ENTRY);
                 break;
 
             default:
+
                 break;
             }
 
