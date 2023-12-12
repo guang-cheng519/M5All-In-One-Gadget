@@ -77,7 +77,38 @@
 #define COMMON_BLUEDOT_IMG_PATH "/images/common/blue_number/dot.jpg"
 #define COMMON_BLUEFILLWHITE_IMG_PATH "/images/common/blue_number/fillwhite.jpg"
 
-//TITLE jpg image coordinate
+#define HIGH_AND_LOW_TITLE_IMG_PATH "/images/trump/title.jpg"
+#define HIGH_AND_LOW_START_IMG_PATH "/images/trump/start.jpg"
+#define HIGH_AND_LOW_ONEMORE_IMG_PATH "/images/trump/onemore.jpg"
+#define HIGH_AND_LOW_RECORD_IMG_PATH "/images/trump/record.jpg"
+#define HIGH_AND_LOW_HIGH_IMG_PATH "/images/trump/high.jpg"
+#define HIGH_AND_LOW_LOW_IMG_PATH "/images/trump/low.jpg"
+#define HIGH_AND_LOW_WIN_IMG_PATH "/images/trump/win.jpg"
+#define HIGH_AND_LOW_LOSE_IMG_PATH "/images/trump/lose.jpg"
+#define HIGH_AND_LOW_TRUMP_BACK_IMG_PATH "/images/trump/back.jpg"
+#define HIGH_AND_LOW_IMG_PATH "/images/trump/highandlow.jpg"
+
+#define HIGH_AND_LOW_HEART1_IMG_PATH "/images/trump/heart/heart1.jpg"
+#define HIGH_AND_LOW_HEART2_IMG_PATH "/images/trump/heart/heart2.jpg"
+#define HIGH_AND_LOW_HEART3_IMG_PATH "/images/trump/heart/heart3.jpg"
+#define HIGH_AND_LOW_HEART4_IMG_PATH "/images/trump/heart/heart4.jpg"
+#define HIGH_AND_LOW_HEART5_IMG_PATH "/images/trump/heart/heart5.jpg"
+#define HIGH_AND_LOW_HEART6_IMG_PATH "/images/trump/heart/heart6.jpg"
+#define HIGH_AND_LOW_HEART7_IMG_PATH "/images/trump/heart/heart7.jpg"
+#define HIGH_AND_LOW_HEART8_IMG_PATH "/images/trump/heart/heart8.jpg"
+#define HIGH_AND_LOW_HEART9_IMG_PATH "/images/trump/heart/heart9.jpg"
+
+#define HIGH_AND_LOW_SPADE1_IMG_PATH "/images/trump/spade/spade1.jpg"
+#define HIGH_AND_LOW_SPADE2_IMG_PATH "/images/trump/spade/spade2.jpg"
+#define HIGH_AND_LOW_SPADE3_IMG_PATH "/images/trump/spade/spade3.jpg"
+#define HIGH_AND_LOW_SPADE4_IMG_PATH "/images/trump/spade/spade4.jpg"
+#define HIGH_AND_LOW_SPADE5_IMG_PATH "/images/trump/spade/spade5.jpg"
+#define HIGH_AND_LOW_SPADE6_IMG_PATH "/images/trump/spade/spade6.jpg"
+#define HIGH_AND_LOW_SPADE7_IMG_PATH "/images/trump/spade/spade7.jpg"
+#define HIGH_AND_LOW_SPADE8_IMG_PATH "/images/trump/spade/spade8.jpg"
+#define HIGH_AND_LOW_SPADE9_IMG_PATH "/images/trump/spade/spade9.jpg"
+
+// TITLE jpg image coordinate
 #define TITLE_X_CRD 0
 #define TITLE_Y_CRD 0
 
@@ -127,8 +158,6 @@
 #define WBGT_BACK_X_CRD 120
 #define WBGT_BACK_Y_CRD 200
 
-
-
 // Music jpg image coordinate
 #define MUSIC_NOTICE_X_CRD 0
 #define MUSIC_NOTICE_Y_CRD 0
@@ -143,11 +172,9 @@
 #define MUSIC_STOP_X_CRD 0
 #define MUSIC_STOP_Y_CRD 200
 
-
-
 // Measure jpg image coordinate
 #define MEASURE_NOTICE_X_CRD 0
-#define MEASURE_NOTICE_Y_CRD 0	
+#define MEASURE_NOTICE_Y_CRD 0
 #define MEASURE_DIGIT3_X_CRD 10
 #define MEASURE_DIGIT3_Y_CRD 100
 #define MEASURE_DIGIT2_X_CRD 53
@@ -163,7 +190,6 @@
 #define MEASURE_BACK_X_CRD 120
 #define MEASURE_BACK_Y_CRD 200
 
-
 // Date jpg image coordinate
 #define DATE_NOTICE_X_CRD 0
 #define DATE_NOTICE_Y_CRD 0
@@ -174,35 +200,73 @@
 #define DATE_BACK_X_CRD 120
 #define DATE_BACK_Y_CRD 200
 
+// HIGH AND LOW jpg image coordinate
+#define HIGH_AND_LOW_TITLE_X_CRD 0
+#define HIGH_AND_LOW_TITLE_Y_CRD 0
+#define HIGH_AND_LOW_START_X_CRD 0
+#define HIGH_AND_LOW_START_Y_CRD 200
+#define HIGH_AND_LOW_BACK_X_CRD 120
+#define HIGH_AND_LOW_BACK_Y_CRD 200
+#define HIGH_AND_LOW_RECORD_X_CRD 240
+#define HIGH_AND_LOW_RECORD_Y_CRD 200 // ここまでがHIGH AND LOWタイトル
 
-typedef enum {
+#define HIGH_AND_LOW_HEART_X_CRD 40
+#define HIGH_AND_LOW_HEART_Y_CRD 0
+#define HIGH_AND_LOW_SPADE_X_CRD 180
+#define HIGH_AND_LOW_SPADE_Y_CRD 0
+#define HIGH_AND_LOW_TRUMP_BACK_X_CRD 180
+#define HIGH_AND_LOW_TRUMP_BACK_Y_CRD 0
+#define HIGH_AND_LOW_X_CRD 10
+#define HIGH_AND_LOW_Y_CRD 140
+#define HIGH_AND_LOW_HIGH_X_CRD 0
+#define HIGH_AND_LOW_HIGH_Y_CRD 200
+#define HIGH_AND_LOW_LOW_X_CRD 240
+#define HIGH_AND_LOW_LOW_Y_CRD 200
+
+
+#define HIGH_AND_LOW_WIN_X_CRD 50
+#define HIGH_AND_LOW_WIN_Y_CRD 140
+#define HIGH_AND_LOW_LOSE_X_CRD 50
+#define HIGH_AND_LOW_LOSE_Y_CRD 140
+#define HIGH_AND_LOW_ONEMORE_X_CRD 0
+#define HIGH_AND_LOW_ONEMORE_Y_CRD 200
+
+typedef enum
+{
     TITLE,
     MENU,
     WBGT,
     MUSIC_STOP,
     MUSIC_PLAY,
     MEASURE,
-    DATE
+    DATE,
+    HIGH_AND_LOW,
+    HIGH_AND_LOW_PLAY,
+    HIGH_AND_LOW_WIN_LOSE,
+    HIGH_AND_LOW_RECORD
 } State;
 
-typedef enum {
+typedef enum
+{
     ENTRY,
     DO,
     EXIT
 } Action;
 
-typedef enum {
+typedef enum
+{
     MENU_WBGT,
     MENU_MUSIC,
     MENU_MEASURE,
-    MENU_DATE
+    MENU_DATE,
+    MENU_HIGH_AND_LOW
 } FocusState;
 
-typedef enum {
+typedef enum
+{
     SAFE,
     ATTENTION,
     ALERT,
     HIGH_ALERT,
     DANGER
 } WbgtIndex;
-

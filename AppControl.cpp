@@ -2,11 +2,16 @@
 #include <Arduino.h>
 #include <M5Stack.h>
 
+
 MdLcd mlcd;
 MdWBGTMonitor mwbgt;
 MdMusicPlayer mmplay;
 MdMeasureDistance mmdist;
 MdDateTime mdtime;
+MdHighAndLow mdhal;
+
+int heart = 0;
+int spade = 0;
 
 const char *g_str_orange[] = {
     COMMON_ORANGE0_IMG_PATH,
@@ -32,6 +37,30 @@ const char *g_str_blue[] = {
     COMMON_BLUE7_IMG_PATH,
     COMMON_BLUE8_IMG_PATH,
     COMMON_BLUE9_IMG_PATH,
+};
+
+const char *g_str_heart[] = {
+    HIGH_AND_LOW_HEART1_IMG_PATH,
+    HIGH_AND_LOW_HEART2_IMG_PATH,
+    HIGH_AND_LOW_HEART3_IMG_PATH,
+    HIGH_AND_LOW_HEART4_IMG_PATH,
+    HIGH_AND_LOW_HEART5_IMG_PATH,
+    HIGH_AND_LOW_HEART6_IMG_PATH,
+    HIGH_AND_LOW_HEART7_IMG_PATH,
+    HIGH_AND_LOW_HEART8_IMG_PATH,
+    HIGH_AND_LOW_HEART9_IMG_PATH,
+};
+
+const char *g_str_spade[] = {
+    HIGH_AND_LOW_SPADE1_IMG_PATH,
+    HIGH_AND_LOW_SPADE2_IMG_PATH,
+    HIGH_AND_LOW_SPADE3_IMG_PATH,
+    HIGH_AND_LOW_SPADE4_IMG_PATH,
+    HIGH_AND_LOW_SPADE5_IMG_PATH,
+    HIGH_AND_LOW_SPADE6_IMG_PATH,
+    HIGH_AND_LOW_SPADE7_IMG_PATH,
+    HIGH_AND_LOW_SPADE8_IMG_PATH,
+    HIGH_AND_LOW_SPADE9_IMG_PATH,
 };
 
 void AppControl::setBtnAFlg(bool flg)
@@ -126,6 +155,8 @@ void AppControl::focusChangeImg(FocusState current_state, FocusState next_state)
     case MENU_DATE:
         mlcd.displayJpgImageCoordinate(MENU_DATE_IMG_PATH, MENU_DATE_X_CRD, MENU_DATE_Y_CRD);
         break;
+    case MENU_HIGH_AND_LOW:
+        break;
     }
     switch (next_state)
     {
@@ -140,6 +171,8 @@ void AppControl::focusChangeImg(FocusState current_state, FocusState next_state)
         break;
     case MENU_DATE:
         mlcd.displayJpgImageCoordinate(MENU_DATE_FOCUS_IMG_PATH, MENU_DATE_X_CRD, MENU_DATE_Y_CRD);
+        break;
+    case MENU_HIGH_AND_LOW:
         break;
     }
     setFocusState(next_state);
@@ -339,11 +372,66 @@ void AppControl::displayDateUpdate()
     mlcd.displayDateText(mdtime.readTime(), DATE_HHmmSS_X_CRD, DATE_HHmmSS_Y_CRD);
 }
 
+void AppControl::displayHighAndLowInit()
+{
+    mlcd.clearDisplay();
+    mlcd.fillBackgroundWhite();
+    mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_TITLE_IMG_PATH, HIGH_AND_LOW_TITLE_X_CRD, HIGH_AND_LOW_TITLE_Y_CRD);
+    mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_START_IMG_PATH, HIGH_AND_LOW_START_X_CRD, HIGH_AND_LOW_START_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, HIGH_AND_LOW_BACK_X_CRD, HIGH_AND_LOW_BACK_Y_CRD);
+    mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_RECORD_IMG_PATH, HIGH_AND_LOW_RECORD_X_CRD, HIGH_AND_LOW_RECORD_Y_CRD);
+}
+void AppControl::displayHighAndLowPlay()
+{
+
+    mlcd.clearDisplay();
+    mlcd.fillBackgroundWhite();
+    mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_IMG_PATH, HIGH_AND_LOW_X_CRD, HIGH_AND_LOW_Y_CRD);
+    mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_HIGH_IMG_PATH, HIGH_AND_LOW_HIGH_X_CRD, HIGH_AND_LOW_HIGH_Y_CRD);
+    mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_LOW_IMG_PATH, HIGH_AND_LOW_LOW_X_CRD, HIGH_AND_LOW_LOW_Y_CRD);
+    mlcd.displayJpgImageCoordinate(g_str_heart[heart], HIGH_AND_LOW_HEART_X_CRD, HIGH_AND_LOW_HEART_Y_CRD);
+    mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_TRUMP_BACK_IMG_PATH, HIGH_AND_LOW_TRUMP_BACK_X_CRD, HIGH_AND_LOW_TRUMP_BACK_Y_CRD);
+}
+
+void AppControl::displayHighAndLowTrump()
+{
+    mlcd.displayJpgImageCoordinate(g_str_heart[heart], HIGH_AND_LOW_HEART_X_CRD, HIGH_AND_LOW_HEART_Y_CRD);
+    mlcd.displayJpgImageCoordinate(g_str_spade[spade], HIGH_AND_LOW_SPADE_X_CRD, HIGH_AND_LOW_SPADE_Y_CRD);
+}
+
+void AppControl::displayHighAndLowWinLose()
+{
+    mlcd.clearDisplay();
+    mlcd.fillBackgroundWhite();
+    displayHighAndLowTrump();
+    mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_ONEMORE_IMG_PATH, HIGH_AND_LOW_ONEMORE_X_CRD, HIGH_AND_LOW_ONEMORE_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, HIGH_AND_LOW_BACK_X_CRD, HIGH_AND_LOW_BACK_Y_CRD);
+    bool winlose = mdhal.getWinLose(&heart, &spade);
+    if ((winlose == false && m_flag_btnA_is_pressed) || (winlose == true && m_flag_btnC_is_pressed))
+    {
+        winlose = true;
+    }
+    else
+    {
+        winlose = false;
+    }
+
+    if (winlose)
+    {
+        mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_WIN_IMG_PATH, HIGH_AND_LOW_WIN_X_CRD, HIGH_AND_LOW_WIN_Y_CRD);
+    }
+    else
+    {
+        mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_LOSE_IMG_PATH, HIGH_AND_LOW_LOSE_X_CRD, HIGH_AND_LOW_LOSE_Y_CRD);
+    }
+}
+
 void AppControl::controlApplication()
 {
- 
- mmplay.init();
-           
+
+    mmplay.init();
+static int up_count = 0;
+                static int doun_count = 0;
     while (1)
     {
 
@@ -360,7 +448,7 @@ void AppControl::controlApplication()
                 */
                 displayTitleInit();
                 setStateMachine(TITLE, DO);
-                
+
                 break;
 
             case DO:
@@ -388,14 +476,17 @@ void AppControl::controlApplication()
             case ENTRY:
                 setFocusState(MENU_WBGT);
                 displayMenuInit();
-                
                 setStateMachine(MENU, DO);
+                up_count = 0;
+                doun_count = 0;
 
                 break;
 
             case DO:
                 if (m_flag_btnA_is_pressed)
                 {
+                    up_count++;
+                    setBtnAllFlgFalse();
                     switch (getFocusState())
                     {
                     case MENU_WBGT:
@@ -411,31 +502,52 @@ void AppControl::controlApplication()
                         focusChangeImg(MENU_DATE, MENU_MEASURE);
                         break;
                     }
-                    setBtnAllFlgFalse();
                 }
                 else if (m_flag_btnB_is_pressed)
                 {
+                    if (up_count >= 2 && doun_count == 2)
+                    {
+                        setFocusState(MENU_HIGH_AND_LOW);
+                    }
                     setStateMachine(MENU, EXIT);
                     setBtnAllFlgFalse();
                 }
                 else if (m_flag_btnC_is_pressed)
                 {
+                    setBtnAllFlgFalse();
+                    if (up_count == 1)
+                    {
+                        up_count = 0;
+                    }
+                    else if (up_count >= 2)
+                    {
+                        doun_count++;
+                        if (doun_count == 3)
+                        {
+                            up_count = 0;
+                            doun_count = 0;
+                        }
+                    }
                     switch (getFocusState())
                     {
                     case MENU_WBGT:
                         focusChangeImg(MENU_WBGT, MENU_MUSIC);
                         break;
                     case MENU_MUSIC:
+
                         focusChangeImg(MENU_MUSIC, MENU_MEASURE);
+
                         break;
                     case MENU_MEASURE:
+
                         focusChangeImg(MENU_MEASURE, MENU_DATE);
                         break;
                     case MENU_DATE:
+
                         focusChangeImg(MENU_DATE, MENU_WBGT);
+
                         break;
                     }
-                    setBtnAllFlgFalse();
                 }
                 break;
 
@@ -454,6 +566,9 @@ void AppControl::controlApplication()
                 case MENU_DATE:
                     setStateMachine(DATE, ENTRY);
                     break;
+                case MENU_HIGH_AND_LOW:
+                    setStateMachine(HIGH_AND_LOW, ENTRY);
+                    break;
                 }
 
             default:
@@ -468,7 +583,7 @@ void AppControl::controlApplication()
             {
             case ENTRY:
                 displayWBGTInit();
-                
+
                 setStateMachine(WBGT, DO);
                 break;
             case DO:
@@ -495,10 +610,9 @@ void AppControl::controlApplication()
             switch (getAction())
             {
             case ENTRY:
-           
+
                 displayMusicInit();
-                
-               
+
                 setStateMachine(MUSIC_STOP, DO);
                 break;
 
@@ -559,7 +673,7 @@ void AppControl::controlApplication()
                 break;
 
             case EXIT:
-             mmplay.stopMP3();
+                mmplay.stopMP3();
                 setStateMachine(MUSIC_STOP, ENTRY);
                 break;
 
@@ -606,7 +720,7 @@ void AppControl::controlApplication()
             {
             case ENTRY:
                 displayDateInit();
-    
+
                 setStateMachine(DATE, DO);
                 break;
 
@@ -627,11 +741,130 @@ void AppControl::controlApplication()
             default:
                 break;
             }
+            break;
 
+        case HIGH_AND_LOW:
+
+            switch (getAction())
+
+            {
+            case ENTRY:
+                displayHighAndLowInit();
+                setStateMachine(HIGH_AND_LOW, DO);
+                break;
+
+            case DO:
+                if (m_flag_btnA_is_pressed)
+                {
+                    setStateMachine(HIGH_AND_LOW, EXIT);
+                }
+                else if (m_flag_btnB_is_pressed)
+                {
+                    setStateMachine(HIGH_AND_LOW, EXIT);
+                }
+                else if (m_flag_btnC_is_pressed)
+                {
+
+                    setStateMachine(HIGH_AND_LOW, EXIT);
+                }
+
+                break;
+
+            case EXIT:
+                if (m_flag_btnA_is_pressed)
+                {
+                    setStateMachine(HIGH_AND_LOW_PLAY, ENTRY);
+                }
+                else if (m_flag_btnB_is_pressed)
+                {
+                    setStateMachine(MENU, ENTRY);
+                }
+                else if (m_flag_btnC_is_pressed)
+                {
+                    setStateMachine(HIGH_AND_LOW_RECORD, ENTRY);
+                }
+                setBtnAllFlgFalse();
+                break;
+
+            default:
+                break;
+            }
+            break;
+        case HIGH_AND_LOW_PLAY:
+
+            switch (getAction())
+            {
+            case ENTRY:
+
+                mdhal.getTrump(&heart, &spade);
+                displayHighAndLowPlay();
+                setStateMachine(HIGH_AND_LOW_PLAY, DO);
+                break;
+
+            case DO:
+                if (m_flag_btnA_is_pressed || m_flag_btnC_is_pressed)
+                {
+                    setStateMachine(HIGH_AND_LOW_PLAY, EXIT);
+                }
+                break;
+
+            case EXIT:
+                setStateMachine(HIGH_AND_LOW_WIN_LOSE, ENTRY);
+
+                break;
+            default:
+                break;
+            }
+            break;
+        case HIGH_AND_LOW_WIN_LOSE:
+
+            switch (getAction())
+            {
+            case ENTRY:
+
+                displayHighAndLowWinLose();
+                setStateMachine(HIGH_AND_LOW_WIN_LOSE, DO);
+                setBtnAllFlgFalse();
+                break;
+
+            case DO:
+                if (m_flag_btnA_is_pressed || m_flag_btnB_is_pressed)
+                {
+                    setStateMachine(HIGH_AND_LOW_WIN_LOSE, EXIT);
+                }
+                break;
+
+            case EXIT:
+                if (m_flag_btnA_is_pressed)
+                {
+                    setStateMachine(HIGH_AND_LOW_PLAY, ENTRY);
+                }
+                else if (m_flag_btnB_is_pressed)
+                {
+                    setStateMachine(HIGH_AND_LOW, ENTRY);
+                }
+                setBtnAllFlgFalse();
+                break;
+            }
+            break;
+        case HIGH_AND_LOW_RECORD:
+
+            switch (getAction())
+            {
+            case ENTRY:
+
+                break;
+
+            case DO:
+
+                break;
+
+            case EXIT:
+
+                break;
+            }
         default:
             break;
         }
     }
-    
-
 }
