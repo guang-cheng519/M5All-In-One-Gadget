@@ -1,7 +1,7 @@
 #include "AppControl.h"
 #include <Arduino.h>
 #include <M5Stack.h>
-
+#include <CSV_Parser.h>
 
 MdLcd mlcd;
 MdWBGTMonitor mwbgt;
@@ -9,9 +9,18 @@ MdMusicPlayer mmplay;
 MdMeasureDistance mmdist;
 MdDateTime mdtime;
 MdHighAndLow mdhal;
-
+/*
+File file;
+// SDにあるCSVフォルダの指定
+const char *fname = "/root.csv";
+// 記録する際のイベント名
+char *eventName[] = {"1回", "2回", "3回", "4回", "5回", "6回", "7回", "8回", "9回", "10回"};
+*/
 int heart = 0;
 int spade = 0;
+int win_count = 0;
+int game_count = 0;
+// char game_cnt_win[10] = 0;
 
 const char *g_str_orange[] = {
     COMMON_ORANGE0_IMG_PATH,
@@ -228,16 +237,17 @@ void AppControl::displayTempHumiIndex()
     }
     if (temperature_digit[2] > 0) // 気温が2桁ある時の表示
     {
-        mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[2])), WBGT_T2DIGIT_X_CRD, WBGT_T2DIGIT_Y_CRD);
-        mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[1])), WBGT_T1DIGIT_X_CRD, WBGT_T1DIGIT_Y_CRD);
+        mlcd.displayJpgImageCoordinate(*(g_str_orange + (temperature_digit[2])), WBGT_T2DIGIT_X_CRD, WBGT_T2DIGIT_Y_CRD);
+        mlcd.displayJpgImageCoordinate(*(g_str_orange + (temperature_digit[1])), WBGT_T1DIGIT_X_CRD, WBGT_T1DIGIT_Y_CRD);
     }
     else // 気温が1桁の時2桁目は表示しない
     {
-        mlcd.displayJpgImageCoordinate(COMMON_BLUEFILLWHITE_IMG_PATH, WBGT_T2DIGIT_X_CRD, WBGT_T2DIGIT_Y_CRD);
-        mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[1])), WBGT_T1DIGIT_X_CRD, WBGT_T1DIGIT_Y_CRD);
+        mlcd.displayJpgImageCoordinate(COMMON_ORANGEFILLWHITE_IMG_PATH, WBGT_T2DIGIT_X_CRD, WBGT_T2DIGIT_Y_CRD);
+        mlcd.displayJpgImageCoordinate(*(g_str_orange + (temperature_digit[1])), WBGT_T1DIGIT_X_CRD, WBGT_T1DIGIT_Y_CRD);
     }
-    mlcd.displayJpgImageCoordinate(COMMON_BLUEDOT_IMG_PATH, WBGT_TDOT_X_CRD, WBGT_TDOT_Y_CRD);
-    mlcd.displayJpgImageCoordinate(*(g_str_blue + (temperature_digit[0])), WBGT_T1DECIMAL_X_CRD, WBGT_T1DECIMAL_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_ORANGEDOT_IMG_PATH, WBGT_TDOT_X_CRD, WBGT_TDOT_Y_CRD);
+    mlcd.displayJpgImageCoordinate(*(g_str_orange + (temperature_digit[0])), WBGT_T1DECIMAL_X_CRD, WBGT_T1DECIMAL_Y_CRD);
+
     if (humidity_digit[2] > 0) // 湿度が2桁ある時の表示
     {
         mlcd.displayJpgImageCoordinate(*(g_str_blue + (humidity_digit[2])), WBGT_H2DIGIT_X_CRD, WBGT_H2DIGIT_Y_CRD);
@@ -298,6 +308,7 @@ void AppControl::displayMusicTitle()
 void AppControl::displayNextMusic()
 {
     mmplay.selectNextMusic();
+    displayMusicTitle();
 }
 
 void AppControl::displayMusicPlay()
@@ -325,7 +336,7 @@ void AppControl::displayMeasureDistance()
     int n = 0;
 
     int distance = (int)(mmdist.getDistance() * 10); // double型で来た値を＊10して小数点をなくしてint型に入れる
-    if (distance > 20 || distance <= 4500)
+    if (distance > 20 && distance <= 4500)
     {                         // 2cm～450cmの間だけ表示するそれ以外は更新しない
         while (distance != 0) // distanceの値が０になるまで繰り返す
         {
@@ -333,6 +344,7 @@ void AppControl::displayMeasureDistance()
             distance /= 10;                    // 　値を1/10にしてdistanceに代入する
             n++;
         }
+
         if (distance_digit[3] > 0) // 3桁目が1以上なら2桁目もそのまま表示する
         {
             mlcd.displayJpgImageCoordinate(*(g_str_blue + (distance_digit[3])), MEASURE_DIGIT3_X_CRD, MEASURE_DIGIT3_Y_CRD);
@@ -381,6 +393,7 @@ void AppControl::displayHighAndLowInit()
     mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, HIGH_AND_LOW_BACK_X_CRD, HIGH_AND_LOW_BACK_Y_CRD);
     mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_RECORD_IMG_PATH, HIGH_AND_LOW_RECORD_X_CRD, HIGH_AND_LOW_RECORD_Y_CRD);
 }
+
 void AppControl::displayHighAndLowPlay()
 {
 
@@ -407,7 +420,7 @@ void AppControl::displayHighAndLowWinLose()
     mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_ONEMORE_IMG_PATH, HIGH_AND_LOW_ONEMORE_X_CRD, HIGH_AND_LOW_ONEMORE_Y_CRD);
     mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, HIGH_AND_LOW_BACK_X_CRD, HIGH_AND_LOW_BACK_Y_CRD);
     bool winlose = mdhal.getWinLose(&heart, &spade);
-    if ((winlose == false && m_flag_btnA_is_pressed) || (winlose == true && m_flag_btnC_is_pressed))
+    if ((!winlose && m_flag_btnA_is_pressed) || (winlose && m_flag_btnC_is_pressed))
     {
         winlose = true;
     }
@@ -419,19 +432,50 @@ void AppControl::displayHighAndLowWinLose()
     if (winlose)
     {
         mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_WIN_IMG_PATH, HIGH_AND_LOW_WIN_X_CRD, HIGH_AND_LOW_WIN_Y_CRD);
+        win_count++;
     }
     else
     {
         mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_LOSE_IMG_PATH, HIGH_AND_LOW_LOSE_X_CRD, HIGH_AND_LOW_LOSE_Y_CRD);
+
+        // writeDataTime(eventName[game_count]);
+
+        win_count = 0;
+        game_count++;
+        if (game_count == 10)
+        {
+            game_count = 0;
+        }
     }
+}
+
+/*
+void writeDataTime(char *paramStr)
+{
+    // SDカードへの書き込み処理（ファイル追加モード）
+    // SD.beginはM5.begin内で処理されているので不要
+    file = SD.open(fname, FILE_APPEND);
+    file.println(mdtime.readDate() + "," + mdtime.readTime() + "," + win_count + "," + paramStr);
+    file.close();
+
+        file = SD.open(fname, FILE_WRITE);
+        file.println(mdtime.readDate() + "," + mdtime.readTime() + "," + win_count + "," + eventName[game_count]);
+        file.close();
+
+}
+*/
+
+void AppControl::displayHighAndLowRecord()
+{
 }
 
 void AppControl::controlApplication()
 {
 
     mmplay.init();
-static int up_count = 0;
-                static int doun_count = 0;
+    static int up_count = 0;
+    static int doun_count = 0;
+
     while (1)
     {
 
@@ -628,7 +672,6 @@ static int up_count = 0;
                 else if (m_flag_btnC_is_pressed)
                 {
                     displayNextMusic();
-                    displayMusicTitle();
                     setBtnAllFlgFalse();
                 }
 
@@ -764,7 +807,6 @@ static int up_count = 0;
                 }
                 else if (m_flag_btnC_is_pressed)
                 {
-
                     setStateMachine(HIGH_AND_LOW, EXIT);
                 }
 
@@ -795,7 +837,6 @@ static int up_count = 0;
             switch (getAction())
             {
             case ENTRY:
-
                 mdhal.getTrump(&heart, &spade);
                 displayHighAndLowPlay();
                 setStateMachine(HIGH_AND_LOW_PLAY, DO);
@@ -810,7 +851,6 @@ static int up_count = 0;
 
             case EXIT:
                 setStateMachine(HIGH_AND_LOW_WIN_LOSE, ENTRY);
-
                 break;
             default:
                 break;
@@ -821,7 +861,6 @@ static int up_count = 0;
             switch (getAction())
             {
             case ENTRY:
-
                 displayHighAndLowWinLose();
                 setStateMachine(HIGH_AND_LOW_WIN_LOSE, DO);
                 setBtnAllFlgFalse();
@@ -852,15 +891,20 @@ static int up_count = 0;
             switch (getAction())
             {
             case ENTRY:
-
+                setStateMachine(HIGH_AND_LOW_RECORD, DO);
                 break;
 
             case DO:
 
+                if (m_flag_btnB_is_pressed)
+                {
+                    setStateMachine(HIGH_AND_LOW_RECORD, EXIT);
+                    setBtnAllFlgFalse();
+                }
                 break;
 
             case EXIT:
-
+                setStateMachine(HIGH_AND_LOW, ENTRY);
                 break;
             }
         default:

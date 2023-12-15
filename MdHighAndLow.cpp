@@ -1,9 +1,15 @@
 #include "MdHighAndLow.h"
 #include <Arduino.h>
+#include <M5Stack.h>
+
+
+const char* fname = "/root.csv";
+
 
 MdHighAndLow::MdHighAndLow()
 {
   randomSeed(analogRead(0));
+ 
 }
 
 void MdHighAndLow::getTrump(int *heart, int *spade)
@@ -29,3 +35,4 @@ bool MdHighAndLow::getWinLose(int *heart, int *spade)
 
   return winlose;
 }
+
