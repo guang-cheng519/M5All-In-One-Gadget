@@ -55,5 +55,7 @@ public: // publicはどこからでもアクセス可能
     void displayHighAndLowTrump();
     void displayHighAndLowWinLose();
     void displayHighAndLowRecord();
+    void writeHighLowRecord();
+    void readHighLowRecord();
     void controlApplication();
 };

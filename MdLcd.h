@@ -14,4 +14,5 @@ public: // publicはどこからでもアクセス可能
     void fillBackgroundWhite();
     void displayText(const char* text, int x, int y);
     void displayDateText(String text, int x, int y);
+    void displayCsvText(String text, int x, int y);
 };

@@ -9,18 +9,32 @@ MdMusicPlayer mmplay;
 MdMeasureDistance mmdist;
 MdDateTime mdtime;
 MdHighAndLow mdhal;
+
+
+//char * csv_str = "date,time,win,comment\n";
+//CSV_Parser cp(csv_str, /*format*/ "ssds",/*has_header*/ true, /*delimiter*/ ',', /*quote_char*/ "'");
+
 /*
-File file;
-// SDにあるCSVフォルダの指定
-const char *fname = "/root.csv";
-// 記録する際のイベント名
-char *eventName[] = {"1回", "2回", "3回", "4回", "5回", "6回", "7回", "8回", "9回", "10回"};
+char    **date =         (char**)cp["date"];
+char    **time =         (char**)cp["time"];
+int16_t *Win =           (int16_t*)cp["win"];
+char    **comment =         (char**)cp["comment"];
 */
+
+typedef struct
+{
+    String date_hal;
+    String time_hal;
+    int win_hal;
+} HighLow;
+
+HighLow line[10];
+
 int heart = 0;
 int spade = 0;
 int win_count = 0;
 int game_count = 0;
-// char game_cnt_win[10] = 0;
+int count_keta = 0;
 
 const char *g_str_orange[] = {
     COMMON_ORANGE0_IMG_PATH,
@@ -235,6 +249,7 @@ void AppControl::displayTempHumiIndex()
             i++;
         }
     }
+
     if (temperature_digit[2] > 0) // 気温が2桁ある時の表示
     {
         mlcd.displayJpgImageCoordinate(*(g_str_orange + (temperature_digit[2])), WBGT_T2DIGIT_X_CRD, WBGT_T2DIGIT_Y_CRD);
@@ -414,11 +429,7 @@ void AppControl::displayHighAndLowTrump()
 
 void AppControl::displayHighAndLowWinLose()
 {
-    mlcd.clearDisplay();
-    mlcd.fillBackgroundWhite();
     displayHighAndLowTrump();
-    mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_ONEMORE_IMG_PATH, HIGH_AND_LOW_ONEMORE_X_CRD, HIGH_AND_LOW_ONEMORE_Y_CRD);
-    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, HIGH_AND_LOW_BACK_X_CRD, HIGH_AND_LOW_BACK_Y_CRD);
     bool winlose = mdhal.getWinLose(&heart, &spade);
     if ((!winlose && m_flag_btnA_is_pressed) || (winlose && m_flag_btnC_is_pressed))
     {
@@ -431,42 +442,105 @@ void AppControl::displayHighAndLowWinLose()
 
     if (winlose)
     {
+        mlcd.displayDateText("                                       ", HIGH_AND_LOW_ONEMORE_X_CRD, HIGH_AND_LOW_WIN_Y_CRD);
         mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_WIN_IMG_PATH, HIGH_AND_LOW_WIN_X_CRD, HIGH_AND_LOW_WIN_Y_CRD);
         win_count++;
     }
     else
     {
+        mlcd.displayDateText("                                     ", HIGH_AND_LOW_ONEMORE_X_CRD, HIGH_AND_LOW_WIN_Y_CRD);
         mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_LOSE_IMG_PATH, HIGH_AND_LOW_LOSE_X_CRD, HIGH_AND_LOW_LOSE_Y_CRD);
 
-        // writeDataTime(eventName[game_count]);
-
+        line[game_count] = {mdtime.readDate(), mdtime.readTime(), win_count};
         win_count = 0;
         game_count++;
         if (game_count == 10)
         {
             game_count = 0;
+            count_keta++;
         }
     }
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_FILLWHITE_IMG_PATH, HIGH_AND_LOW_LOW_X_CRD, HIGH_AND_LOW_LOW_Y_CRD);
+    mlcd.displayJpgImageCoordinate(HIGH_AND_LOW_ONEMORE_IMG_PATH, HIGH_AND_LOW_ONEMORE_X_CRD, HIGH_AND_LOW_ONEMORE_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, HIGH_AND_LOW_BACK_X_CRD, HIGH_AND_LOW_BACK_Y_CRD);
 }
 
-/*
-void writeDataTime(char *paramStr)
+void AppControl::writeHighLowRecord()
 {
-    // SDカードへの書き込み処理（ファイル追加モード）
-    // SD.beginはM5.begin内で処理されているので不要
-    file = SD.open(fname, FILE_APPEND);
-    file.println(mdtime.readDate() + "," + mdtime.readTime() + "," + win_count + "," + paramStr);
-    file.close();
+    // SDにあるCSVファイルに上書きする
+    File fp = SD.open("/root.csv", FILE_WRITE); // fp=file printの略
+    if (fp)
+    {
 
-        file = SD.open(fname, FILE_WRITE);
-        file.println(mdtime.readDate() + "," + mdtime.readTime() + "," + win_count + "," + eventName[game_count]);
-        file.close();
-
+        if (count_keta == 0)
+        {
+            for (int i = 0; i < game_count; i++)
+            {
+                fp.print(line[i].date_hal);
+                fp.print(",");
+                fp.print(line[i].time_hal);
+                fp.print(",");
+                fp.print(line[i].win_hal);
+                fp.print(",");
+                fp.print("straight wins");
+                fp.println();
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                fp.print(line[i].date_hal);
+                fp.print(",");
+                fp.print(line[i].time_hal);
+                fp.print(",");
+                fp.print(line[i].win_hal);
+                fp.print(",");
+                fp.print("straight wins");
+                fp.println();
+            }
+        }
+        fp.close();
+    }else {
+    mlcd.displayCsvText("ERROR: File called '/root.csv' does not exist...",HIGH_AND_LOW_TITLE_X_CRD,HIGH_AND_LOW_TITLE_Y_CRD);
+  }
+    
 }
-*/
+
+void AppControl::readHighLowRecord()
+{
+    String line;          // 行を一時的に記憶する変数
+    int dis_y=0;
+
+    File fo = SD.open("/root.csv", FILE_READ);
+    if (fo)
+    {
+        while (fo.available()) // データが有ればループ
+        {
+            char ch = fo.read(); // データを1byteずつ読み取り
+            line += String(ch);  // 1byteずつ繋げていく
+            if (ch == '\n')      //'\n'が読み込まれた所で一旦読み取りをやめる
+            {
+                mlcd.displayCsvText(line,HIGH_AND_LOW_TITLE_X_CRD,dis_y); // 行全体を画面に表示
+                //line.trim();        // 行に含まれる不要な空白を取り除く
+
+                line = "\0";    // 変数を初期化
+                dis_y += 10;
+            }
+            
+         }
+        fo.close();                   // ファイルを閉じる
+    }else {
+    mlcd.displayCsvText("ERROR: File called '/root.csv' does not exist...",HIGH_AND_LOW_TITLE_X_CRD,HIGH_AND_LOW_TITLE_Y_CRD);
+  }
+}
 
 void AppControl::displayHighAndLowRecord()
 {
+    mlcd.clearDisplay();
+    mlcd.fillBackgroundWhite();
+    readHighLowRecord();
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_BACK_IMG_PATH, HIGH_AND_LOW_BACK_X_CRD, HIGH_AND_LOW_BACK_Y_CRD);
 }
 
 void AppControl::controlApplication()
@@ -807,6 +881,7 @@ void AppControl::controlApplication()
                 }
                 else if (m_flag_btnC_is_pressed)
                 {
+
                     setStateMachine(HIGH_AND_LOW, EXIT);
                 }
 
@@ -880,6 +955,13 @@ void AppControl::controlApplication()
                 }
                 else if (m_flag_btnB_is_pressed)
                 {
+                    if (win_count != 0)
+                    {
+                        line[game_count] = {mdtime.readDate(), mdtime.readTime(), win_count};
+                        win_count = 0;
+                        game_count++;
+                    }
+                    writeHighLowRecord();
                     setStateMachine(HIGH_AND_LOW, ENTRY);
                 }
                 setBtnAllFlgFalse();
@@ -891,6 +973,7 @@ void AppControl::controlApplication()
             switch (getAction())
             {
             case ENTRY:
+                displayHighAndLowRecord();
                 setStateMachine(HIGH_AND_LOW_RECORD, DO);
                 break;
 
